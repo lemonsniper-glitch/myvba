@@ -1,0 +1,72 @@
+Sub ConsolidateData()
+    Dim wsMasters(1 To 3) As Worksheet ' Array to hold master sheets
+    Dim ws As Worksheet
+    Dim lastRowMasters(1 To 3) As Long ' Array to hold last row in master sheets
+    Dim lastRowTeam As Long
+    Dim teamName As String
+    Dim i As Long
+    Dim tableMarker As String ' Marker to identify the current table (A, B, or C)
+    
+    ' Set the master sheets where data will be consolidated
+    Set wsMasters(1) = ThisWorkbook.Sheets("Master Table A")
+    Set wsMasters(2) = ThisWorkbook.Sheets("Master Table B")
+    Set wsMasters(3) = ThisWorkbook.Sheets("Master Table C")
+    
+    ' Initialize the last row in the master sheets
+    For i = 1 To 3
+        lastRowMasters(i) = 2 ' Assuming data starts from row 2
+    Next i
+    
+    ' Loop through all sheets in the workbook (excluding the master sheets)
+    For Each ws In ThisWorkbook.Sheets
+        If ws.Name <> "Master Table A" And ws.Name <> "Master Table B" And ws.Name <> "Master Table C" Then
+            teamName = ws.Name ' Assuming the sheet name is the team's name
+            
+            ' Loop through each row in the team's sheet
+            For i = 2 To ws.Cells(Rows.Count, 1).End(xlUp).Row ' Assuming data starts from row 2 in team sheets
+                ' Check for the table marker (A, B, or C)
+                If IsTableAMarker(ws.Cells(i, 1).Value) Then
+                    tableMarker = "A"
+                ElseIf IsTableBMarker(ws.Cells(i, 1).Value) Then
+                    tableMarker = "B"
+                ElseIf IsTableCMarker(ws.Cells(i, 1).Value) Then
+                    tableMarker = "C"
+                End If
+                
+                If tableMarker <> "" Then
+                    ' Copy data from all columns to the appropriate master sheet
+                    For j = 1 To ws.Cells(i, Columns.Count).End(xlToLeft).Column
+                        wsMasters(Application.Match(tableMarker, Array("A", "B", "C"), 0)).Cells(lastRowMasters(Application.Match(tableMarker, Array("A", "B", "C"), 0)), j).Value = ws.Cells(i, j).Value
+                    Next j
+                    
+                    ' Set the team name in the first column of the master sheet
+                    wsMasters(Application.Match(tableMarker, Array("A", "B", "C"), 0)).Cells(lastRowMasters(Application.Match(tableMarker, Array("A", "B", "C"), 0)), 1).Value = teamName
+                    
+                    ' Increment the row counter in the appropriate master sheet
+                    lastRowMasters(Application.Match(tableMarker, Array("A", "B", "C"), 0)) = lastRowMasters(Application.Match(tableMarker, Array("A", "B", "C"), 0)) + 1
+                End If
+            Next i
+        End If
+    Next ws
+End Sub
+
+Function IsTableAMarker(value As Variant) As Boolean
+    ' Add your criteria to identify Table A data here
+    ' For example, if Table A has a specific marker in the data, use something like:
+    ' IsTableAMarker = (value = "MarkerA")
+    IsTableAMarker = False
+End Function
+
+Function IsTableBMarker(value As Variant) As Boolean
+    ' Add your criteria to identify Table B data here
+    ' For example, if Table B has a specific marker in the data, use something like:
+    ' IsTableBMarker = (value = "MarkerB")
+    IsTableBMarker = False
+End Function
+
+Function IsTableCMarker(value As Variant) As Boolean
+    ' Add your criteria to identify Table C data here
+    ' For example, if Table C has a specific marker in the data, use something like:
+    ' IsTableCMarker = (value = "MarkerC")
+    IsTableCMarker = False
+End Function
