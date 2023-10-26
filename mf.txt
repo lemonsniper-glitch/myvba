@@ -1,0 +1,32 @@
+Sub UpdateMonthlyData()
+    Dim wsSource As Worksheet
+    Dim wsTarget As Worksheet
+    Dim LastRow As Long
+    Dim MonthToCopy As String
+    
+    ' Define your source and target sheets
+    Set wsSource = ThisWorkbook.Sheets("SourceSheet") ' Change "SourceSheet" to your source sheet name
+    Set wsTarget = ThisWorkbook.Sheets("TargetSheet") ' Change "TargetSheet" to your target sheet name
+    
+    ' Get the month to copy from the source sheet (e.g., from a cell)
+    MonthToCopy = wsSource.Range("A2").Value ' Update the cell reference
+    
+    ' Find the next empty row in the target sheet for the specified month
+    LastRow = wsTarget.Cells(wsTarget.Rows.Count, 1).End(xlUp).Row + 1
+    
+    ' Copy data from the source sheet to the target sheet
+    wsSource.Range("B2:E2").Copy wsTarget.Cells(LastRow, 1) ' Update the range as needed
+    
+    ' Calculate the values for the next four columns
+    wsTarget.Cells(LastRow, 5).Value = wsTarget.Cells(LastRow, 4).Value * wsTarget.Cells(LastRow, 2).Value * 8
+    wsTarget.Cells(LastRow, 6).Value = wsTarget.Cells(LastRow, 3).Value - wsTarget.Cells(LastRow, 5).Value
+    wsTarget.Cells(LastRow, 7).Value = wsTarget.Cells(LastRow, 4).Value - wsTarget.Cells(LastRow, 6).Value
+    
+    ' Clear the MonthToCopy cell in the source sheet to avoid recopying
+    wsSource.Range("A2").ClearContents ' Update the cell reference
+    
+    ' Clean up
+    Set wsSource = Nothing
+    Set wsTarget = Nothing
+End Sub
+
